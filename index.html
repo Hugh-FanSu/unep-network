@@ -1,18 +1,95 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>UNEP FI 引用网络</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNEP FI引用网络可视化</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        #network {
+            width: 100%;
+            height: 800px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .legend {
+            position: absolute;
+            top: 120px;
+            right: 50px;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e0e6ed;
+        }
+        .legend-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #5a6c7d;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
-    <h2 style="text-align:center; margin-top: 50px; color: #333;">UNEP FI 引用网络正在初始化…</h2>
-    <p style="text-align:center; color: gray;">请稍候，D3.js 可视化加载中（请确保你已开启网络访问）</p>
-    <script>
-        document.body.style.background = "#f4f4f4";
-        document.body.style.fontFamily = "Arial";
-        document.body.innerHTML += "<p style='text-align:center;color:gray;'>请将完整版本 index.html 替换到此处。</p>";
-    </script>
+<div class="container">
+    <h1 class="title">UNEP FI 引用网络分析</h1>
+    <p class="subtitle">请将完整版 index.html 上传至此以可视化网络关系</p>
+    <svg id="network"></svg>
+    <div class="legend">
+        <div class="legend-title">Institution Types</div>
+        <div class="legend-item"><div class="legend-color" style="background:#e74c3c;"></div><span>Core Institution (UNEP FI)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#3498db;"></div><span>International Organizations</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#2ecc71;"></div><span>Academic Institutions</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#f39c12;"></div><span>Research Centers</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#9b59b6;"></div><span>Financial Institutions</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#1abc9c;"></div><span>Other Organizations</span></div>
+    </div>
+</div>
 </body>
 </html>
