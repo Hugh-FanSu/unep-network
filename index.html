@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNEP FI引用网络可视化</title>
+    <title>UNEP FI Citation Network Visualization</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
         body {
@@ -13,6 +13,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -21,6 +22,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             padding: 30px;
         }
+        
         .title {
             text-align: center;
             color: #2c3e50;
@@ -29,12 +31,14 @@
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
+        
         .subtitle {
             text-align: center;
             color: #7f8c8d;
             font-size: 16px;
             margin-bottom: 30px;
         }
+        
         #network {
             width: 100%;
             height: 800px;
@@ -43,6 +47,35 @@
             background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
             box-shadow: inset 0 4px 8px rgba(0,0,0,0.05);
         }
+        
+        .node {
+            cursor: pointer;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.3));
+            transform: scale(1.1);
+        }
+        
+        .link {
+            stroke: #95a5a6;
+            stroke-opacity: 0.6;
+            fill: none;
+        }
+        
+        .node-label {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 12px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            pointer-events: none;
+        }
+        
         .legend {
             position: absolute;
             top: 120px;
@@ -53,12 +86,14 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 1px solid #e0e6ed;
         }
+        
         .legend-title {
             font-weight: bold;
             font-size: 14px;
             color: #2c3e50;
             margin-bottom: 10px;
         }
+        
         .legend-item {
             display: flex;
             align-items: center;
@@ -66,6 +101,7 @@
             font-size: 12px;
             color: #5a6c7d;
         }
+        
         .legend-color {
             width: 16px;
             height: 16px;
@@ -74,22 +110,484 @@
             border: 2px solid #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .info-text {
+            color: #5a6c7d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .legend {
+                position: static;
+                margin: 20px 0;
+                right: auto;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            #network {
+                height: 600px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="title">UNEP FI 引用网络分析</h1>
-    <p class="subtitle">请将完整版 index.html 上传至此以可视化网络关系</p>
-    <svg id="network"></svg>
-    <div class="legend">
-        <div class="legend-title">Institution Types</div>
-        <div class="legend-item"><div class="legend-color" style="background:#e74c3c;"></div><span>Core Institution (UNEP FI)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#3498db;"></div><span>International Organizations</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#2ecc71;"></div><span>Academic Institutions</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#f39c12;"></div><span>Research Centers</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#9b59b6;"></div><span>Financial Institutions</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#1abc9c;"></div><span>Other Organizations</span></div>
+    <div class="container">
+        <h1 class="title">UNEP FI Citation Network Analysis</h1>
+        <p class="subtitle">Interactive Network Visualization | Node Size Reflects Citation Impact</p>
+        
+        <div class="info-panel">
+            <p class="info-text">
+                This visualization shows the citation network of UNEP FI (United Nations Environment Programme Finance Initiative) 
+                and its connections to various institutions. The network is based on citation relationships, with node sizes 
+                reflecting the influence and connectivity of each institution. Hover over nodes to see detailed information.
+            </p>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="resetSimulation()">Reset Layout</button>
+            <button class="control-btn" onclick="toggleLabels()">Toggle Labels</button>
+            <button class="control-btn" onclick="centerNetwork()">Center View</button>
+            <button class="control-btn" onclick="exportPNG()">Export PNG</button>
+        </div>
+        
+        <svg id="network"></svg>
+        
+        <div class="legend">
+            <div class="legend-title">Institution Types</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Core Institution (UNEP FI)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>International Organizations</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2ecc71;"></div>
+                <span>Academic Institutions</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Research Centers</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9b59b6;"></div>
+                <span>Financial Institutions</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #1abc9c;"></div>
+                <span>Other Organizations</span>
+            </div>
+        </div>
     </div>
-</div>
+
+    <script>
+        // UNEP FI Citation Network Visualization
+        // Ready for GitHub Pages deployment - Save as index.html
+        // Network data structure
+        const edgesData = [
+            // UNEP FI as core hub connecting to major institutions
+            {source: "UNEP FI", target: "OECD", weight: 6},
+            {source: "UNEP FI", target: "London School of Economics", weight: 3},
+            {source: "UNEP FI", target: "Seven Pillars Institute for Global Finance and Ethics", weight: 3},
+            {source: "UNEP FI", target: "IMF", weight: 3},
+            {source: "UNEP FI", target: "Climate Risk Horizons", weight: 3},
+            {source: "UNEP FI", target: "UNFCCC", weight: 3},
+            {source: "UNEP FI", target: "Blekinge Institute of Technology", weight: 3},
+            {source: "UNEP FI", target: "University of Santiago de Compostela", weight: 2},
+            {source: "UNEP FI", target: "King Abdullah Petroleum Studies and Research Center", weight: 2},
+            {source: "UNEP FI", target: "UNDP", weight: 2},
+            {source: "UNEP FI", target: "UNOPs", weight: 2},
+            {source: "UNEP FI", target: "Union for the Mediterranean", weight: 2},
+            {source: "UNEP FI", target: "Habitat for Humanity", weight: 2},
+            {source: "UNEP FI", target: "British International Investment", weight: 2},
+            {source: "UNEP FI", target: "CENTRAL BANK OF EGYPT", weight: 2},
+            // Secondary connections
+            {source: "University of Santiago de Compostela", target: "RMIT International University", weight: 1},
+            {source: "University of Santiago de Compostela", target: "University for Development Studies, Ghana", weight: 1},
+            {source: "University of Santiago de Compostela", target: "Trent University", weight: 1},
+            {source: "University of Santiago de Compostela", target: "University of Management and Technology, Lahore", weight: 1}
+        ];
+
+        const nodesData = [
+            {id: "UNEP FI", label: "UNEP FI", type: "Core"},
+            {id: "OECD", label: "OECD", type: "International"},
+            {id: "London School of Economics", label: "London School of Economics", type: "Academic"},
+            {id: "Seven Pillars Institute for Global Finance and Ethics", label: "Seven Pillars Institute", type: "Research"},
+            {id: "IMF", label: "IMF", type: "International"},
+            {id: "Climate Risk Horizons", label: "Climate Risk Horizons", type: "Research"},
+            {id: "UNFCCC", label: "UNFCCC", type: "International"},
+            {id: "Blekinge Institute of Technology", label: "Blekinge Institute", type: "Academic"},
+            {id: "University of Santiago de Compostela", label: "Santiago University", type: "Academic"},
+            {id: "King Abdullah Petroleum Studies and Research Center", label: "KAPSARC", type: "Research"},
+            {id: "UNDP", label: "UNDP", type: "International"},
+            {id: "UNOPs", label: "UNOPs", type: "Other"},
+            {id: "Union for the Mediterranean", label: "Union Mediterranean", type: "Other"},
+            {id: "Habitat for Humanity", label: "Habitat for Humanity", type: "Other"},
+            {id: "British International Investment", label: "British Investment", type: "Financial"},
+            {id: "CENTRAL BANK OF EGYPT", label: "Central Bank Egypt", type: "Financial"},
+            {id: "RMIT International University", label: "RMIT University", type: "Academic"},
+            {id: "University for Development Studies, Ghana", label: "Ghana University", type: "Academic"},
+            {id: "Trent University", label: "Trent University", type: "Academic"},
+            {id: "University of Management and Technology, Lahore", label: "Lahore University", type: "Academic"}
+        ];
+
+        // Calculate in-degree and out-degree
+        const inDegree = {};
+        const outDegree = {};
+        nodesData.forEach(node => {
+            inDegree[node.id] = 0;
+            outDegree[node.id] = 0;
+        });
+        edgesData.forEach(edge => {
+            inDegree[edge.target]++;
+            outDegree[edge.source]++;
+        });
+
+        // Color mapping by institution type
+        const colorMap = {
+            "Core": "#e74c3c",
+            "International": "#3498db",
+            "Academic": "#2ecc71",
+            "Research": "#f39c12",
+            "Financial": "#9b59b6",
+            "Other": "#1abc9c"
+        };
+
+        // SVG setup
+        const svg = d3.select("#network");
+        const width = 1340;
+        const height = 800;
+        svg.attr("width", width).attr("height", height);
+
+        const g = svg.append("g");
+
+        // Zoom functionality
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", function(event) {
+                g.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        // Create tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        // Force simulation setup - optimized to avoid overlapping
+        const simulation = d3.forceSimulation(nodesData)
+            .force("link", d3.forceLink(edgesData).id(d => d.id)
+                .distance(d => {
+                    // Adjust distance based on weight and node importance
+                    const sourceSize = Math.max(15, (inDegree[d.source.id] + outDegree[d.source.id]) * 8 + 15);
+                    const targetSize = Math.max(15, (inDegree[d.target.id] + outDegree[d.target.id]) * 8 + 15);
+                    return Math.max(120, sourceSize + targetSize + 60);
+                })
+                .strength(0.5))
+            .force("charge", d3.forceManyBody()
+                .strength(d => {
+                    // Stronger repulsion for core nodes
+                    if (d.id === "UNEP FI") return -1500;
+                    return -600 - (inDegree[d.id] + outDegree[d.id]) * 50;
+                }))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide()
+                .radius(d => {
+                    const baseRadius = Math.max(15, (inDegree[d.id] + outDegree[d.id]) * 8 + 15);
+                    return baseRadius + 25; // Increase collision radius to avoid overlap
+                })
+                .strength(0.8))
+            .force("radial", d3.forceRadial(
+                d => d.id === "UNEP FI" ? 0 : 200,
+                width / 2, 
+                height / 2
+            ).strength(d => d.id === "UNEP FI" ? 0.8 : 0.1));
+
+        // Draw links
+        const link = g.append("g")
+            .selectAll("line")
+            .data(edgesData)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight) * 2)
+            .attr("marker-end", "url(#arrowhead)");
+
+        // Add arrow markers
+        const defs = svg.append("defs");
+        defs.append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 15)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#95a5a6");
+
+        // Draw nodes
+        const node = g.append("g")
+            .selectAll("circle")
+            .data(nodesData)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", d => {
+                if (d.id === "UNEP FI") return 30; // UNEP FI extra large
+                return Math.max(12, (inDegree[d.id] + outDegree[d.id]) * 6 + 12);
+            })
+            .attr("fill", d => colorMap[d.type] || "#95a5a6")
+            .attr("stroke", d => d.id === "UNEP FI" ? "#c0392b" : "#fff")
+            .attr("stroke-width", d => d.id === "UNEP FI" ? 4 : 3)
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`
+                    <strong>${d.label}</strong><br/>
+                    Type: ${d.type}<br/>
+                    In-degree: ${inDegree[d.id]}<br/>
+                    Out-degree: ${outDegree[d.id]}<br/>
+                    Influence: ${(inDegree[d.id] + outDegree[d.id]) > 5 ? 'High' : (inDegree[d.id] + outDegree[d.id]) > 2 ? 'Medium' : 'Low'}
+                `)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition().duration(500).style("opacity", 0);
+            })
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        // Add node labels
+        let showLabels = true;
+        const labels = g.append("g")
+            .selectAll("text")
+            .data(nodesData)
+            .enter().append("text")
+            .attr("class", "node-label")
+            .text(d => d.label)
+            .style("font-size", d => {
+                if (d.id === "UNEP FI") return "16px";
+                return Math.max(10, (inDegree[d.id] + outDegree[d.id]) * 1.5 + 10) + "px";
+            })
+            .style("font-weight", d => d.id === "UNEP FI" ? "bold" : "normal");
+
+        // Update positions
+        simulation.on("tick", () => {
+            // Constrain UNEP FI to center area
+            const unepNode = nodesData.find(d => d.id === "UNEP FI");
+            if (unepNode) {
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const maxDistance = 50;
+                
+                const dx = unepNode.x - centerX;
+                const dy = unepNode.y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > maxDistance) {
+                    unepNode.x = centerX + (dx / distance) * maxDistance;
+                    unepNode.y = centerY + (dy / distance) * maxDistance;
+                }
+            }
+
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+
+            labels
+                .attr("x", d => d.x)
+                .attr("y", d => {
+                    const radius = d.id === "UNEP FI" ? 30 : Math.max(12, (inDegree[d.id] + outDegree[d.id]) * 6 + 12);
+                    return d.y + radius + 18;
+                });
+        });
+
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            // Keep UNEP FI near center
+            if (d.id === "UNEP FI") {
+                d.fx = width / 2;
+                d.fy = height / 2;
+            } else {
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // Control functions
+        function resetSimulation() {
+            // Reset all node positions
+            nodesData.forEach(d => {
+                d.fx = null;
+                d.fy = null;
+            });
+            
+            // Fix UNEP FI at center
+            const unepNode = nodesData.find(d => d.id === "UNEP FI");
+            if (unepNode) {
+                unepNode.fx = width / 2;
+                unepNode.fy = height / 2;
+            }
+            
+            simulation.alpha(1).restart();
+            
+            // Release UNEP FI position after 2 seconds
+            setTimeout(() => {
+                if (unepNode) {
+                    unepNode.fx = null;
+                    unepNode.fy = null;
+                }
+            }, 2000);
+        }
+
+        function toggleLabels() {
+            showLabels = !showLabels;
+            labels.style("opacity", showLabels ? 1 : 0);
+        }
+
+        function centerNetwork() {
+            const transform = d3.zoomIdentity;
+            svg.transition().duration(750).call(zoom.transform, transform);
+        }
+
+        // Export PNG functionality
+        function exportPNG() {
+            try {
+                // Create a new canvas element
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                // Set canvas dimensions
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Set white background
+                context.fillStyle = 'white';
+                context.fillRect(0, 0, width, height);
+                
+                // Get SVG element
+                const svgElement = document.getElementById('network');
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svgElement);
+                
+                // Create a temporary Image object
+                const img = new Image();
+                const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+                
+                img.onload = function() {
+                    // Draw SVG to canvas
+                    context.drawImage(img, 0, 0);
+                    
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = 'UNEP_FI_Citation_Network.png';
+                    link.href = canvas.toDataURL('image/png');
+                    
+                    // Trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Clean up URL
+                    URL.revokeObjectURL(url);
+                };
+                
+                img.onerror = function() {
+                    alert('Export failed. Please try a different browser or save the page manually.');
+                };
+                
+                img.src = url;
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Export functionality may not be supported in this browser.');
+            }
+        }
+
+        // Initialize: Fix UNEP FI at center
+        const unepNode = nodesData.find(d => d.id === "UNEP FI");
+        if (unepNode) {
+            unepNode.fx = width / 2;
+            unepNode.fy = height / 2;
+        }
+
+        // Release fixed position after simulation starts
+        setTimeout(() => {
+            if (unepNode) {
+                unepNode.fx = null;
+                unepNode.fy = null;
+            }
+        }, 3000);
+    </script>
 </body>
 </html>
